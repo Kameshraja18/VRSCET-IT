@@ -54,7 +54,7 @@ A comprehensive MERN stack-based College Management System that helps manage aca
 
 ## Setup Instructions
 
-Project Setup Video Tutorial: https://youtu.be/gw4jh4RHzuo
+Project Setup 
 
 Sample .env file is added in both backend and frontend, copy that variables and create `.env` in both the folders and then follow below given instructions
 
@@ -146,10 +146,6 @@ college-management-system/
 ```
 
 ## For Any Doubt Feel Free To Contact Me 🚀
-
-- [My Website](http://krishjotaniya.netlify.app/)
-- [Linkedin](https://www.linkedin.com/in/krishjotaniya/)
-- [krishjotaniya71@gmail.com](mailto:krishjotaniya71@gmail.com)
 
 ## Contributing
 
