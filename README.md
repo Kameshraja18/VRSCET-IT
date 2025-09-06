@@ -18,6 +18,7 @@ A comprehensive MERN stack-based College Management System that helps manage aca
 - Generate and manage notices for students and faculty
 - Upload and manage timetables by branch and semester
 - Profile management and password updates
+- Assign multiple students to faculty mentors for personalized growth tracking
 
 ### Faculty Features
 
@@ -54,7 +55,6 @@ A comprehensive MERN stack-based College Management System that helps manage aca
 
 ## Setup Instructions
 
-Project Setup Video Tutorial: https://youtu.be/gw4jh4RHzuo
 
 Sample .env file is added in both backend and frontend, copy that variables and create `.env` in both the folders and then follow below given instructions
 
@@ -145,11 +145,7 @@ college-management-system/
 └── README.md
 ```
 
-## For Any Doubt Feel Free To Contact Me 🚀
 
-- [My Website](http://krishjotaniya.netlify.app/)
-- [Linkedin](https://www.linkedin.com/in/krishjotaniya/)
-- [krishjotaniya71@gmail.com](mailto:krishjotaniya71@gmail.com)
 
 ## Contributing
 
@@ -157,4 +153,4 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE] file for details.
