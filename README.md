@@ -80,7 +80,7 @@ npm install
 3. Create a `.env` file in the backend directory with the following variables:
 
 ```
-MONGODB_URI =mongodb://127.0.0.1:27017/College-Management-System
+MONGODB_URI =mongodb://localhost:27017
 PORT = 4000
 FRONTEND_API_LINK = http://localhost:3000
 JWT_SECRET = THISISSECRET
