@@ -99,6 +99,15 @@ const Login = () => {
 
   const [selected, setSelected] = useState(USER_TYPES.STUDENT);
 
+  useEffect(() => {
+    if (type) {
+      const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+      if (Object.values(USER_TYPES).includes(capitalizedType)) {
+        setSelected(capitalizedType);
+      }
+    }
+  }, [type]);
+
   const handleUserTypeSelect = (type) => {
     const userType = type.toLowerCase();
     setSelected(type);

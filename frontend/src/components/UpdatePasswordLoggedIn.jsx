@@ -1,27 +1,96 @@
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
+import { FiLock, FiEye, FiEyeOff, FiX, FiCheck, FiAlertCircle } from "react-icons/fi";
 import axiosWrapper from "../utils/AxiosWrapper";
-import { IoMdClose } from "react-icons/io";
 import CustomButton from "./CustomButton";
 
 const UpdatePasswordLoggedIn = ({ onClose }) => {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [formData, setFormData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
   const userToken = localStorage.getItem("userToken");
   const userType = localStorage.getItem("userType");
+
+  const validatePassword = (password) => {
+    const errors = [];
+    if (password.length < 8) {
+      errors.push("At least 8 characters");
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+      errors.push("One lowercase letter");
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      errors.push("One uppercase letter");
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      errors.push("One number");
+    }
+    return errors;
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+    // Clear errors when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+
+    // Real-time validation for new password
+    if (field === "newPassword") {
+      const passwordErrors = validatePassword(value);
+      if (passwordErrors.length > 0) {
+        setErrors(prev => ({ ...prev, newPassword: passwordErrors.join(", ") }));
+      }
+    }
+
+    // Check confirm password match
+    if (field === "confirmPassword" || field === "newPassword") {
+      if (field === "confirmPassword" && value !== formData.newPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: "Passwords do not match" }));
+      } else if (field === "newPassword" && formData.confirmPassword && value !== formData.confirmPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: "Passwords do not match" }));
+      } else {
+        setErrors(prev => ({ ...prev, confirmPassword: "" }));
+      }
+    }
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
+  };
 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
 
-    if (newPassword !== confirmPassword) {
-      toast.error("New passwords do not match");
-      return;
+    // Validate all fields
+    const newErrors = {};
+
+    if (!formData.currentPassword) {
+      newErrors.currentPassword = "Current password is required";
     }
 
-    if (newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters long");
+    const passwordErrors = validatePassword(formData.newPassword);
+    if (passwordErrors.length > 0) {
+      newErrors.newPassword = passwordErrors.join(", ");
+    }
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -30,8 +99,8 @@ const UpdatePasswordLoggedIn = ({ onClose }) => {
       const response = await axiosWrapper.post(
         `/${userType.toLowerCase()}/change-password`,
         {
-          currentPassword,
-          newPassword,
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
         },
         {
           headers: {
@@ -42,9 +111,12 @@ const UpdatePasswordLoggedIn = ({ onClose }) => {
 
       if (response.data.success) {
         toast.success("Password updated successfully");
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
+        setFormData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: ""
+        });
+        onClose();
       } else {
         toast.error(response.data.message);
       }
@@ -55,65 +127,138 @@ const UpdatePasswordLoggedIn = ({ onClose }) => {
     }
   };
 
-  return (
-    <section className="w-full h-full flex justify-center items-center bg-black bg-opacity-50 fixed top-0 left-0 z-50">
-      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md w-[50%]">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold mb-6">Update Password</h2>
-          <CustomButton
-            onClick={onClose}
-            className="bg-red-500 p-2 rounded-full text-white"
-          >
-            <IoMdClose className="text-2xl" />
-          </CustomButton>
+  const PasswordInput = ({ label, field, placeholder, showToggle = true }) => (
+    <div className="mb-4">
+      <label className="block text-gray-700 text-sm font-semibold mb-2">
+        {label}
+      </label>
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <FiLock className="h-5 w-5 text-gray-400" />
         </div>
-        <form onSubmit={handlePasswordUpdate}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Current Password
-            </label>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              New Password
-            </label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Confirm New Password
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+        <input
+          type={showPasswords[field] ? "text" : "password"}
+          value={formData[field]}
+          onChange={(e) => handleInputChange(field, e.target.value)}
+          className={`w-full pl-10 pr-10 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 ${
+            errors[field]
+              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+              : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+          }`}
+          placeholder={placeholder}
+          required
+        />
+        {showToggle && (
           <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            type="button"
+            onClick={() => togglePasswordVisibility(field)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center"
           >
-            {isLoading ? "Updating..." : "Update Password"}
+            {showPasswords[field] ? (
+              <FiEyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            ) : (
+              <FiEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            )}
           </button>
-        </form>
+        )}
       </div>
-    </section>
+      {errors[field] && (
+        <p className="mt-1 text-sm text-red-600 flex items-center">
+          <FiAlertCircle className="w-4 h-4 mr-1" />
+          {errors[field]}
+        </p>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 ease-in-out">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-white bg-opacity-20 rounded-lg">
+                <FiLock className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-bold">Update Password</h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors duration-200"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Form */}
+        <div className="p-6">
+          <form onSubmit={handlePasswordUpdate} className="space-y-4">
+            <PasswordInput
+              label="Current Password"
+              field="currentPassword"
+              placeholder="Enter your current password"
+            />
+
+            <PasswordInput
+              label="New Password"
+              field="newPassword"
+              placeholder="Enter your new password"
+            />
+
+            <PasswordInput
+              label="Confirm New Password"
+              field="confirmPassword"
+              placeholder="Confirm your new password"
+            />
+
+            {/* Password Requirements */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="text-sm font-semibold text-blue-900 mb-2">Password Requirements:</h4>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li className="flex items-center">
+                  <FiCheck className={`w-4 h-4 mr-2 ${formData.newPassword.length >= 8 ? 'text-green-500' : 'text-gray-400'}`} />
+                  At least 8 characters
+                </li>
+                <li className="flex items-center">
+                  <FiCheck className={`w-4 h-4 mr-2 ${/(?=.*[a-z])/.test(formData.newPassword) ? 'text-green-500' : 'text-gray-400'}`} />
+                  One lowercase letter
+                </li>
+                <li className="flex items-center">
+                  <FiCheck className={`w-4 h-4 mr-2 ${/(?=.*[A-Z])/.test(formData.newPassword) ? 'text-green-500' : 'text-gray-400'}`} />
+                  One uppercase letter
+                </li>
+                <li className="flex items-center">
+                  <FiCheck className={`w-4 h-4 mr-2 ${/(?=.*\d)/.test(formData.newPassword) ? 'text-green-500' : 'text-gray-400'}`} />
+                  One number
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <CustomButton
+                type="button"
+                onClick={onClose}
+                variant="secondary"
+                className="flex-1"
+                disabled={isLoading}
+              >
+                Cancel
+              </CustomButton>
+              <CustomButton
+                type="submit"
+                variant="primary"
+                className="flex-1"
+                loading={isLoading}
+              >
+                Update Password
+              </CustomButton>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 

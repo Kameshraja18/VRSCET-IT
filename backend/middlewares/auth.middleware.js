@@ -20,6 +20,7 @@ const auth = async (req, res, next) => {
       }
 
       req.userId = decoded.userId;
+      req.user = { userId: decoded.userId, type: 'faculty' }; // Default to faculty, can be improved later
       req.token = token;
       next();
     } catch (jwtError) {

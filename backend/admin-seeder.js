@@ -14,11 +14,11 @@ const seedData = async () => {
 
     const adminDetail = {
       employeeId: employeeId,
-      firstName: "Sundar",
-      middleName: "R",
-      lastName: "Pichai",
-      email: "admin@gmail.com",
-      phone: "1234567890",
+      firstName: "Gobinathan",
+      middleName: "",
+      lastName: "N",
+      email: "gobiruban.net@gmail.com",
+      phone: "8667409534",
       profile: "Faculty_Profile_123456.jpg",
       address: "123 College Street",
       city: "College City",

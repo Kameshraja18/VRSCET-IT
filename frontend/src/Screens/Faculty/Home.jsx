@@ -11,6 +11,8 @@ import StudentFinder from "./StudentFinder";
 import Profile from "./Profile";
 import Marks from "./AddMarks";
 import Exam from "../Exam";
+import Attendance from "./Attendance";
+import MyStudents from "./MyStudents";
 
 const MENU_ITEMS = [
   { id: "home", label: "Home", component: null },
@@ -20,6 +22,8 @@ const MENU_ITEMS = [
   { id: "student info", label: "Student Info", component: StudentFinder },
   { id: "marks", label: "Marks", component: Marks },
   { id: "exam", label: "Exam", component: Exam },
+  { id: "attendance", label: "Attendance", component: Attendance },
+  { id: "my-students", label: "My Students", component: MyStudents },
 ];
 
 const Home = () => {
